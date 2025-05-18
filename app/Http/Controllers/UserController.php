@@ -11,10 +11,11 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class UserController extends Controller
 {
-    public function userRegistration(Request $request) {
+    public function userRegistration(Request $request)
+    {
         try {
             User::create([
-                'first_name' =>$request->first_name,
+                'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
                 'mobile' => $request->mobile,
@@ -23,25 +24,25 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'User Registration Successfully...!!!',
-            ],201);
+            ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'User Registration Failed...!!!',
-            ],200);
+            ], 200);
         }
     }
 
-    public function userLogin(Request $request){
-        $user_id = User::where([ 'email' => $request->email,'password' => $request->password,])->select('id')->first();
+    public function userLogin(Request $request)
+    {
+        $user_id = User::where(['email' => $request->email, 'password' => $request->password,])->select('id')->first();
         if ($user_id !== null) {
             $token = JWTToken::createToken($request->email, $user_id->id);
             return response()->json([
-               'status' => 'success',
-               'message' => 'User Login Successfully...!!!',
+                'status' => 'success',
+                'message' => 'User Login Successfully...!!!',
             ], 200)->cookie('token', $token, 60 * 60 * 24);
-        }
-        else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'User Login Failed...!!!',
@@ -49,16 +50,18 @@ class UserController extends Controller
         }
     }
 
-    public function logout(){
+    public function logout()
+    {
         return response()->json([
             'status' => 'success',
             'message' => 'User Logout Successfully...!!!',
         ], 200)->cookie('token', null, -1);
     }
 
-    public function sentOtp(Request $request){
+    public function sentOtp(Request $request)
+    {
         $email = $request->email;
-        $otp = rand(1000,9999);
+        $otp = rand(1000, 9999);
         $count = User::where('email', $request->email)->count();
         if ($count === 1) {
             Mail::to($email)->send(new OTPMail($otp));
@@ -66,13 +69,33 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Otp Sent Successfully...!!!',
-            ],200);
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Unable to sent otp...!!!',
+            ], 200);
+        }
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $email = $request->email;
+        $otp = $request->otp;
+        $user = User::where(['email' => $email, 'otp' => $otp])->first();
+        if ($user !== null) {
+            User::where('email', $email)->update(['otp' => 0]);
+            $token = JWTToken::createTokenForResetPassword($email);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Otp Verified Successfully...!!!'
+            ], 200)->cookie('token', $token, 60 * 60 * 24);
         }
         else{
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Unable to sent otp...!!!',
-            ],200);
+                'message' => 'Unable to verify otp...!!!',
+            ]);
         }
     }
 }
