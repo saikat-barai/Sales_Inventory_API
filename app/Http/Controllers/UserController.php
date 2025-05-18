@@ -78,8 +78,7 @@ class UserController extends Controller
         }
     }
 
-    public function verifyOtp(Request $request)
-    {
+    public function verifyOtp(Request $request){
         $email = $request->email;
         $otp = $request->otp;
         $user = User::where(['email' => $email, 'otp' => $otp])->first();
@@ -90,11 +89,27 @@ class UserController extends Controller
                 'status' => 'success',
                 'message' => 'Otp Verified Successfully...!!!'
             ], 200)->cookie('token', $token, 60 * 60 * 24);
-        }
-        else{
+        } else {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Unable to verify otp...!!!',
+            ]);
+        }
+    }
+
+    public function resetPassword(Request $request){
+        try {
+            $email = $request->header('user_email');
+            $password = $request->password;
+            User::where('email', $email)->update(['password' => $password]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Password Reset Successfully...!!!',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Password Reset Failed...!!!',
             ]);
         }
     }

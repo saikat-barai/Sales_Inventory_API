@@ -43,7 +43,7 @@ class JWTToken{
             return $payload;
           }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return "Invalid Token";
         }
     }
 }
