@@ -21,7 +21,7 @@ class CategoryController extends Controller
         } else {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Category List',
+                'message' => 'Category List...!!!',
                 'data' => $data,
             ], 200);
         }
