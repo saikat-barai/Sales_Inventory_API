@@ -2,11 +2,17 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\TokenVerificationMiddleware;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('/', function () {
+    return view('welcome');
+});
+// user route
 Route::post('/user-registration', [UserController::class, 'userRegistration'])->name('user_registration');
 Route::post('/user-login', [UserController::class, 'userLogin'])->name('user_login');
 Route::get('/user-logout', [UserController::class, 'logout'])->name('user_logout');
@@ -38,3 +44,7 @@ Route::post('/product-create', [ProductController::class, 'productCreate'])->nam
 Route::post('/product-by-id', [ProductController::class, 'productById'])->name('product_by_id')->middleware(TokenVerificationMiddleware::class);
 Route::post('/product-update', [ProductController::class, 'productUpdate'])->name('product_update')->middleware(TokenVerificationMiddleware::class);
 Route::post('/product-delete', [ProductController::class, 'productDelete'])->name('product_delete')->middleware(TokenVerificationMiddleware::class);
+
+
+// invoice route 
+Route::post('/invoice-create', [InvoiceController::class, 'invoiceCreate'])->name('invoice_create')->middleware(TokenVerificationMiddleware::class);
