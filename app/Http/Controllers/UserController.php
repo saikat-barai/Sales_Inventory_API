@@ -7,6 +7,8 @@ use App\Mail\OTPMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use PhpParser\Node\Stmt\TryCatch;
 
 class UserController extends Controller
@@ -78,7 +80,8 @@ class UserController extends Controller
         }
     }
 
-    public function verifyOtp(Request $request){
+    public function verifyOtp(Request $request)
+    {
         $email = $request->email;
         $otp = $request->otp;
         $user = User::where(['email' => $email, 'otp' => $otp])->first();
@@ -97,7 +100,8 @@ class UserController extends Controller
         }
     }
 
-    public function resetPassword(Request $request){
+    public function resetPassword(Request $request)
+    {
         try {
             $email = $request->header('user_email');
             $password = $request->password;
@@ -110,6 +114,73 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Password Reset Failed...!!!',
+            ]);
+        }
+    }
+
+    public function userProfile(Request $request)
+    {
+        $email = $request->header('user_email');
+        return $email;
+        dd();
+        $user = User::where('email', $email)->first();
+        if ($user !== null) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User Profile Successfully.',
+                'data' => $user,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'User Profile Failed.',
+            ]);
+        }
+    }
+
+    public function userProfileUpdate(Request $request)
+    {
+        // $email = $request->header('user_email');
+        // return $email;
+        // dd();
+        try {
+            $email = $request->header('user_email');
+            // $user = User::where('email', $email)->first();
+            // return $user;
+            // dd();
+            $validation = Validator::make($request->all(), [
+                "first_name" => "required|string|max:255",
+                "last_name" => "required|string|max:255",
+                "email" => "required|email|max:255",
+                // "email" => [ "nullable", "email", "max:255", Rule::unique('users')->ignore($user->id),],
+                "mobile" => 'nullable|numeric|digits:11',
+
+            ]);
+            if ($validation->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Validation Error',
+                    'errors' => $validation->errors(),
+                ], 422);
+            }
+            // $validated = $validation->validated();
+            $user = User::where('email', $email)->update([
+                'first_name' => $validation->validated()['first_name'],
+                'last_name' => $validation->validated()['last_name'],
+                'email' => $validation->validated()['email'],
+                'mobile' => $validation->validated()['mobile'],
+                'password' => $request->password,
+                'updated_at' => now(),
+            ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User Profile Update Successfully.',
+                'data' => $user,
+            ], 200)->cookie('token', null, -1);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'User Profile Update Failed.',
             ]);
         }
     }

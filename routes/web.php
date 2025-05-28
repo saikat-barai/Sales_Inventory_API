@@ -20,6 +20,8 @@ Route::post('/sent-otp', [UserController::class, 'sentOtp'])->name('sent_otp');
 Route::post('/sent-otp', [UserController::class, 'sentOtp'])->name('sent_otp');
 Route::post('/verify-otp', [UserController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('reset_password')->middleware(TokenVerificationMiddleware::class);
+Route::get('/user-profile', [UserController::class, 'userProfile'])->name('user_profile')->middleware(TokenVerificationMiddleware::class);
+Route::post('/user-profile-update', [UserController::class, 'userProfileUpdate'])->name('user_profile_update')->middleware(TokenVerificationMiddleware::class);
 
 
 // category route 
@@ -48,3 +50,4 @@ Route::post('/product-delete', [ProductController::class, 'productDelete'])->nam
 
 // invoice route 
 Route::post('/invoice-create', [InvoiceController::class, 'invoiceCreate'])->name('invoice_create')->middleware(TokenVerificationMiddleware::class);
+
