@@ -13,9 +13,30 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class UserController extends Controller
 {
+
+    public function userRegisterPage()
+    {
+        return view('pages.auth.registration-page');
+    }
     public function userRegistration(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email|max:255',
+                'mobile' => 'nullable|numeric|digits:11',
+                'password' => 'required|string|min:6',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+            $validated = $validator->validated();
             User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -26,13 +47,18 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'User Registration Successfully...!!!',
-            ], 201);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'User Registration Failed...!!!',
             ], 200);
         }
+    }
+
+    public function userLoginPage()
+    {
+        return view('pages.auth.login-page');
     }
 
     public function userLogin(Request $request)
@@ -54,32 +80,59 @@ class UserController extends Controller
 
     public function logout()
     {
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User Logout Successfully...!!!',
-        ], 200)->cookie('token', null, -1);
+
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'User Logout Successfully...!!!',
+        // ], 200)->cookie('token', null, -1);
+
+        return redirect()->route('user_login_page')->cookie('token', null, -1);
     }
 
+
+    public function sendOtpPage()
+    {
+        return view('pages.auth.send-otp-page');
+    }
     public function sentOtp(Request $request)
     {
-        $email = $request->email;
-        $otp = rand(1000, 9999);
-        $count = User::where('email', $request->email)->count();
-        if ($count === 1) {
-            Mail::to($email)->send(new OTPMail($otp));
-            User::where('email', $email)->update(['otp' => $otp]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Otp Sent Successfully...!!!',
-            ], 200);
-        } else {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Unable to sent otp...!!!',
+                'message' => 'Invalid or unregistered email address.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $email = $request->email;
+            $otp = rand(1000, 9999);
+
+            Mail::to($email)->send(new OTPMail($otp));
+            User::where('email', $email)->update(['otp' => $otp]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTP sent successfully!',
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong while sending OTP.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
+
+    public function verifyOtpPage()
+    {
+        return view('pages.auth.verify-otp-page');
+    }
     public function verifyOtp(Request $request)
     {
         $email = $request->email;

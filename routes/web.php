@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
@@ -11,9 +12,16 @@ use App\Http\Middleware\TokenVerificationMiddleware;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/user/login', [UserController::class, 'userLoginPage'])->name('user_login_page');
+Route::get('/user/register', [UserController::class, 'userRegisterPage'])->name('user_register_page');
+Route::get('/sendOtp', [UserController::class, 'sendOtpPage'])->name('send_otp_page');
+Route::get('/verifyOtp', [UserController::class, 'verifyOtpPage'])->name('verify_otp_page');
+
+
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware(TokenVerificationMiddleware::class);
+
+
 // user route
 Route::post('/user-registration', [UserController::class, 'userRegistration'])->name('user_registration');
 Route::post('/user-login', [UserController::class, 'userLogin'])->name('user_login');
