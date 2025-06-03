@@ -19,10 +19,11 @@ class TokenVerificationMiddleware
         $token = $request->cookie('token');
         $payload = JWTToken::verifyToken($token);
         if ($payload === "Invalid Token") {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Invalid Token...!!!',
-            ], 200);
+            // return response()->json([
+            //     'status' => 'failed',
+            //     'message' => 'Invalid Token...!!!',
+            // ], 200);
+            return redirect()->route('user_login_page');
         }
         else{
             // $request->merge([

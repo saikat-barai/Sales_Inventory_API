@@ -58,6 +58,9 @@ class UserController extends Controller
 
     public function userLoginPage()
     {
+        if (isset($_COOKIE['token'])) {
+            return redirect()->route('dashboard');
+        }
         return view('pages.auth.login-page');
     }
 
@@ -135,27 +138,61 @@ class UserController extends Controller
     }
     public function verifyOtp(Request $request)
     {
-        $email = $request->email;
-        $otp = $request->otp;
-        $user = User::where(['email' => $email, 'otp' => $otp])->first();
-        if ($user !== null) {
-            User::where('email', $email)->update(['otp' => 0]);
-            $token = JWTToken::createTokenForResetPassword($email);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Otp Verified Successfully...!!!'
-            ], 200)->cookie('token', $token, 60 * 60 * 24);
-        } else {
+        try {
+            $validator = Validator::make($request->all(), [
+                // 'email' => 'required|email|exists:users,email',
+                'otp' => 'required|numeric|digits:4',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+            $email = $request->email;
+            $otp = $request->otp;
+            $user = User::where(['email' => $email, 'otp' => $otp])->first();
+            if ($user !== null) {
+                User::where('email', $email)->update(['otp' => 0]);
+                $token = JWTToken::createTokenForResetPassword($email);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Otp Verified Successfully.'
+                ], 200)->cookie('token', $token, 60 * 60 * 24);
+            } else {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Unable to verify otp.',
+                ]);
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Unable to verify otp...!!!',
-            ]);
+                'message' => 'Validation Error',
+                'errors' => $e->getMessage(),
+            ], 422);
         }
+    }
+
+    public function resetPasswordPage(){
+        return view('pages.auth.reset-pass-page');
     }
 
     public function resetPassword(Request $request)
     {
+       
         try {
+            $validation = Validator::make($request->all(), [
+                'password' => 'required|min:6|confirmed',
+            ]);
+            if ($validation->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Validation Error',
+                    'errors' => $validation->errors(),
+                ], 422);
+            }
             $email = $request->header('user_email');
             $password = $request->password;
             User::where('email', $email)->update(['password' => $password]);
@@ -167,7 +204,8 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Password Reset Failed...!!!',
-            ]);
+                'errors' => $th->getMessage(),
+            ], 500);
         }
     }
 
