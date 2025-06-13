@@ -23,3 +23,28 @@
             </div>
     </div>
 </div>
+
+<script>
+    async function Save(){
+        let categoryName = document.getElementById('categoryName').value;
+        if (categoryName.length === 0) {
+            errorToast('Category Name is required');
+        }
+        else{
+            document.getElementById('modal-close').click();
+            showLoader();
+            let res = await axios.post('/category-create', {
+                name:categoryName
+            })
+            hideLoader();
+            if (res.status === 200 && res.data.status === 'success') {
+                successToast(res.data.message);
+                document.getElementById('save-form').reset();
+                await getList();
+            }
+            else{
+                errorToast(res.data.message);
+            }
+        }
+    }
+</script>

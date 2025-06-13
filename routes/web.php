@@ -12,14 +12,18 @@ use App\Http\Middleware\TokenVerificationMiddleware;
 use Illuminate\Support\Facades\Route;
 
 
+// frontend route start *******
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/user/login', [UserController::class, 'userLoginPage'])->name('user_login_page');
 Route::get('/user/register', [UserController::class, 'userRegisterPage'])->name('user_register_page');
 Route::get('/sendOtp', [UserController::class, 'sendOtpPage'])->name('send_otp_page');
 Route::get('/verifyOtp', [UserController::class, 'verifyOtpPage'])->name('verify_otp_page');
 Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->name('reset_password_page');
+Route::get('/categoryPage', [CategoryController::class, 'categoryPage'])->name('category_page');
 
+// frontend route end *******
 
+// dashboard route *******
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware(TokenVerificationMiddleware::class);
 
 

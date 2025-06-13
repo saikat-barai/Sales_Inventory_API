@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
+
+    public function categoryPage()
+    {
+        return view('pages.dashboard.category-page');
+    }
     public function categoryList(Request $request)
     {
         $user_id = $request->header('user_id');
@@ -31,12 +37,13 @@ class CategoryController extends Controller
     {
         $user_id = $request->header('user_id');
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|unique:categories,name|string|max:255',
         ]);
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'Validation Error',
+                'errors' => $validator->errors(),
             ]);
         }
         $validatedData = $validator->validated();
@@ -50,6 +57,43 @@ class CategoryController extends Controller
             'message' => 'Category Created Successfully...!!!',
             'data' => $data
         ], 200);
+
+        // try {
+        //     $user_id = $request->header('user_id');
+
+        //     $validator = Validator::make($request->all(), [
+        //         'name' => 'required|unique:categories,name|string|max:255',
+        //     ]);
+
+        //     if ($validator->fails()) {
+        //         return response()->json([
+        //             'status' => 'failed',
+        //             'message' => 'Validation Error',
+        //             'errors' => $validator->errors(),
+        //         ], 422);
+        //     }
+
+        //     $validatedData = $validator->validated();
+
+        //     $data = Category::create([
+        //         'name' => $validatedData['name'],
+        //         'user_id' => $user_id,
+        //         'created_at' => now(),
+        //     ]);
+
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'message' => 'Category Created Successfully...!!!',
+        //         'data' => $data,
+        //     ], 200);
+        // } catch (Exception $e) {
+           
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Something went wrong.',
+        //         'error' => $e->getMessage(), 
+        //     ], 500);
+        // }
     }
 
     public function categoryDelete(Request $request)
