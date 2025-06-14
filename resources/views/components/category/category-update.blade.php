@@ -11,16 +11,67 @@
                             <div class="col-12 p-1">
                                 <label class="form-label">Category Name *</label>
                                 <input type="text" class="form-control" id="categoryNameUpdate">
-                                <input class="d-none" id="updateID">
+                                <input class="form-control d-none" id="updateID">
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button id="update-modal-close" class="btn bg-gradient-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                <button onclick="Update()" id="update-btn" class="btn bg-gradient-success" >Update</button>
+                <button id="update-modal-close" class="btn bg-gradient-primary" data-bs-dismiss="modal"
+                    aria-label="Close">Close</button>
+                <button onclick="Update()" id="update-btn" class="btn bg-gradient-success">Update</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    async function getSingleData(id) {
+        document.getElementById("updateID").value = id;
+        showLoader();
+        let res = await axios.post('/category-by-id', {
+            id: id
+        })
+        hideLoader();
+        document.getElementById("categoryNameUpdate").value = res.data.data.name;
+        // console.log(res);
+    }
+
+    async function Update() {
+        let categoryName = document.getElementById('categoryNameUpdate').value;
+        let id = document.getElementById('updateID').value;
+        if (categoryName.length === 0) {
+            erroToast('Category Name is required');
+        } else {
+            document.getElementById('update-modal-close').click();
+            showLoader();
+            try {
+                let res = await axios.post('/category-update', {
+                    id: id,
+                    name: categoryName
+                });
+
+                if (res.status === 200 && res.data.status === 'success') {
+                    successToast(res.data.message);
+                    document.getElementById('update-form').reset();
+                    await getList();
+                } else {
+                    document.getElementById('update-form').reset();
+                    errorToast(res.data.message);
+                }
+            } catch (err) {
+                hideLoader();
+                if (err.response.status === 422) {
+                    let errors = err.response.data.message;
+                    for (let key in errors) {
+                        errorToast(errors[key][0]);
+                    }
+                } else {
+                    errorToast("Something went wrong");
+                }
+            }
+
+        }
+    }
+</script>

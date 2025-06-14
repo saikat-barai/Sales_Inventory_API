@@ -137,14 +137,14 @@ class CategoryController extends Controller
     public function categoryUpdate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|unique:categories,name|string|max:255',
             'id' => 'required|integer',
         ]);
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => $validator->errors(),
-            ]);
+            ], 422);
         }
         $validatedData = $validator->validated();
         $user_id = $request->header('user_id');

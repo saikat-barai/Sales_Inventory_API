@@ -46,24 +46,37 @@
         hideLoader();
         let tableList = $("#tableList");
         let tableData = $("tableData");
-        tableData.DataTable().destroy();
+        // tableData.DataTable().destroy();
+        $('#tableData').DataTable().destroy();
         tableList.empty();
         res.data.data.forEach(function(item, index) {
             let row = ` <tr>
-                             <td>${index+1}</td>
+                             <td>${index + 1}</td>
                             <td>${item.name}</td>
                             <td>
-                                <button  class="btn editBtn btn-sm btn-outline-success">Edit</button>
-                                <button  class="btn deleteBtn btn-sm btn-outline-danger">Delete</button>
+                                <button data-id="${item.id}" class="btn editBtn btn-sm btn-outline-success">Edit</button>
+                                <button data-id="${item.id}" class="btn deleteBtn btn-sm btn-outline-danger">Delete</button>
                             </td>
                             </tr>`
             tableList.append(row);
         })
+
+        $(".deleteBtn").on("click", function() {
+            let id = $(this).data("id");
+            $("#deleteID").val(id);
+            $("#delete-modal").modal("show");
+        })
+
+        $(".editBtn").on("click",async function(){
+            let id = $(this).data("id");
+            await getSingleData(id);
+            $("#update-modal").modal("show");
+        })
         let table = new DataTable('#tableData', {
             order:[[0, 'desc']],
             lengthMenu: [
-                [ 10, 25, 50, -1 ],
-                [ '10 rows', '25 rows', '50 rows', 'Show all' ]
+                [ 5,10, 25, 50, -1 ],
+                [ '5 rows','10 rows', '25 rows', '50 rows', 'Show all' ]
             ]
         });
     }
