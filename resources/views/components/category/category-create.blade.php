@@ -43,6 +43,7 @@
                 await getList();
             }
             else{
+                document.getElementById('save-form').reset();
                 errorToast(res.data.message);
             }
         }

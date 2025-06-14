@@ -46,18 +46,25 @@
         hideLoader();
         let tableList = $("#tableList");
         let tableData = $("tableData");
-        tableData.DataTable().clear();
+        tableData.DataTable().destroy();
         tableList.empty();
         res.data.data.forEach(function(item, index) {
-           let row = ` <tr>
+            let row = ` <tr>
                              <td>${index+1}</td>
                             <td>${item.name}</td>
                             <td>
                                 <button  class="btn editBtn btn-sm btn-outline-success">Edit</button>
                                 <button  class="btn deleteBtn btn-sm btn-outline-danger">Delete</button>
                             </td>
-                            </tr>` 
+                            </tr>`
             tableList.append(row);
         })
+        let table = new DataTable('#tableData', {
+            order:[[0, 'desc']],
+            lengthMenu: [
+                [ 10, 25, 50, -1 ],
+                [ '10 rows', '25 rows', '50 rows', 'Show all' ]
+            ]
+        });
     }
 </script>
