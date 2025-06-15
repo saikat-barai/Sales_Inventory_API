@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
+    public function customerPage()
+    {
+        return view('pages.dashboard.customer-page');
+    }
     public function customerList(Request $request)
     {
         $user_id = $request->header('user_id');
@@ -42,8 +46,8 @@ class CustomerController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'status'  => 'failed',
-                    'message' => 'Validation Error',
                     'errors'  => $validator->errors(),
+                    'message' => 'Validation Error',
                 ], 422);
             }
 
@@ -132,9 +136,8 @@ class CustomerController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status'  => 'failed',
-                    'message' => 'Validation error',
-                    'errors'  => $validator->errors(),
+                    'status' => 'failed',
+                    'message' => $validator->errors(),
                 ], 422);
             }
 
@@ -159,6 +162,7 @@ class CustomerController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Customer updated successfully',
+                'data'    => $customer,
             ], 200);
         } catch (\Throwable $e) {
             Log::error('Customer Update Error', [

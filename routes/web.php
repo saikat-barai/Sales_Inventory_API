@@ -20,6 +20,7 @@ Route::get('/sendOtp', [UserController::class, 'sendOtpPage'])->name('send_otp_p
 Route::get('/verifyOtp', [UserController::class, 'verifyOtpPage'])->name('verify_otp_page');
 Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->name('reset_password_page');
 Route::get('/categoryPage', [CategoryController::class, 'categoryPage'])->name('category_page');
+Route::get('/customerPage', [CustomerController::class, 'customerPage'])->name('customer_page');
 
 // frontend route end *******
 
