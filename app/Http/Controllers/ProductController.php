@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+
+    public function productPage()
+    {
+        return view('pages.dashboard.product-page');
+    }
     public function productCreate(Request $request)
     {
         try {
@@ -25,7 +30,7 @@ class ProductController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'status' => 'failed',
-                    'message' => $validator->errors(),
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -64,7 +69,7 @@ class ProductController extends Controller
         try {
             $userId = $request->header('user_id');
 
-            $products = Product::where('user_id', $userId)->get();
+            $products = Product::where('user_id', $userId)->with('category')->get();
 
             if ($products->isEmpty()) {
                 return response()->json([
@@ -93,7 +98,7 @@ class ProductController extends Controller
             $userId = $request->header('user_id');
             $productId = $request->input('id');
 
-            $product = Product::where('id', $productId)->where('user_id', $userId)->first();
+            $product = Product::where('id', $productId)->where('user_id', $userId)->with('category')->first();
 
             if ($product !== null) {
                 return response()->json([
@@ -163,28 +168,47 @@ class ProductController extends Controller
                 ], 404);
             }
 
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'price' => 'required|numeric',
-                'unit' => 'string|max:255',
-                'category_id' => 'required|integer',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
-            ]);
+            // $validator = Validator::make($request->all(), [
+            //     'name' => 'required|string|max:255',
+            //     'price' => 'required|numeric',
+            //     'unit' => 'string|max:255',
+            //     'category_id' => 'required|integer',
+            //     'image' => 'nullable|mimes:jpeg,png,jpg,gif|max:5000',
+            // ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validator->errors(),
-                ], 400);
-            }
+            // if ($validator->fails()) {
+            //     return response()->json([
+            //         'status' => 'failed',
+            //         'errors' => $validator->errors(),
+            //     ], 422);
+            // }
 
-            $validatedData = $validator->validated();
+            // $validatedData = $validator->validated();
 
             if ($request->hasFile('image')) {
                 Storage::disk('public')->delete($product->img_url);
                 $file = $request->file('image');
                 $fileName = $userId . '_' . time() . '_' . $file->getClientOriginalName();
                 $filePath = $file->storeAs('uploads', $fileName, 'public');
+
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required|string|max:255',
+                    'price' => 'required|numeric',
+                    'unit' => 'string|max:255',
+                    'category_id' => 'required|integer',
+                    'image' => 'nullable|mimes:jpeg,png,jpg,gif|max:5000',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'failed',
+                        'errors' => $validator->errors(),
+                    ], 422);
+                }
+
+                $validatedData = $validator->validated();
+
 
                 $product->update([
                     'name' => $validatedData['name'],
@@ -200,6 +224,23 @@ class ProductController extends Controller
                     'data' => $product,
                 ], 200);
             } else {
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required|string|max:255',
+                    'price' => 'required|numeric',
+                    'unit' => 'string|max:255',
+                    'category_id' => 'required|integer',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'failed',
+                        'errors' => $validator->errors(),
+                    ], 422);
+                }
+
+                $validatedData = $validator->validated();
+
                 $product->update([
                     'name' => $validatedData['name'],
                     'price' => $validatedData['price'],
@@ -210,7 +251,7 @@ class ProductController extends Controller
 
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Product updated successfully.',
+                    'message' => 'Product updated successfully without image.',
                     'data' => $product,
                 ], 200);
             }

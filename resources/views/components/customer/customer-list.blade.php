@@ -48,7 +48,6 @@
         hideLoader();
         let tableList = $("#tableList");
         let tableData = $("tableData");
-        // tableData.DataTable().destroy();
         $('#tableData').DataTable().destroy();
         tableList.empty();
         res.data.data.forEach(function(item, index) {

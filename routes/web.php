@@ -21,6 +21,7 @@ Route::get('/verifyOtp', [UserController::class, 'verifyOtpPage'])->name('verify
 Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->name('reset_password_page');
 Route::get('/categoryPage', [CategoryController::class, 'categoryPage'])->name('category_page');
 Route::get('/customerPage', [CustomerController::class, 'customerPage'])->name('customer_page');
+Route::get('/productPage', [ProductController::class, 'productPage'])->name('product_page');
 
 // frontend route end *******
 
