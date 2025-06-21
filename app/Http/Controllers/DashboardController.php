@@ -20,19 +20,18 @@ class DashboardController extends Controller
         $categories = Category::where('user_id', $userId)->count();
         $customers = Customer::where('user_id', $userId)->count();
         $invoice = Invoice::where('user_id', $userId)->count();
-        $total = Invoice::where('user_id', $userId)->sum('payable');
-        $vat = Invoice::where('user_id', $userId)->sum('vat');
-        $payable = Invoice::where('user_id', $userId)->sum('payable');
+        
+        $invoiceSummary = Invoice::where('user_id', $userId)->selectRaw('SUM(total) as total, SUM(vat) as vat, SUM(payable) as payable')->first();
         return response()->json([
            'status' => 'success',
            'data' => [
-               'products' => $products,
-               'categories' => $categories,
-               'customers' => $customers,
+               'product' => $products,
+               'category' => $categories,
+               'customer' => $customers,
                'invoice' => $invoice,
-               'total' => $total,
-               'vat' => $vat,
-               'payable' => $payable
+               'total' => $invoiceSummary->total ?? 0,
+               'vat' => $invoiceSummary->vat ?? 0,
+               'payable' => $invoiceSummary->payable ?? 0
            ] 
         ], 200);
 

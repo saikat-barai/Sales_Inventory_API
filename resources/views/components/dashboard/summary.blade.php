@@ -15,7 +15,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -104,7 +104,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -127,7 +127,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
                         </div>
                         <div class="col-3 col-lg-4 col-md-4 col-sm-3 text-end">
                             <div class="icon icon-shape bg-gradient-primary shadow float-end border-radius-md">
-                                <img class="w-100 " src="{{asset('images/icon.svg')}}"/>
+                                <img class="w-100 " src="{{ asset('images/icon.svg') }}" />
                             </div>
                         </div>
                     </div>
@@ -160,3 +160,28 @@
 
     </div>
 </div>
+
+<script>
+    getSummary();
+    async function getSummary() {
+        showLoader();
+        try {
+            let res = await axios.get('/dashboard-summary');
+            hideLoader();
+            let data = res.data.data;
+            console.log(data);
+            document.getElementById("product").innerText = data.product;
+            document.getElementById("category").innerText = data.category;
+            document.getElementById("customer").innerText = data.customer;
+            document.getElementById("invoice").innerText = data.invoice;
+            document.getElementById("total").innerText = data.total;
+            document.getElementById("vat").innerText = data.vat;
+            document.getElementById("payable").innerText = data.payable;
+        } catch (error) {
+            hideLoader();
+            errorToast("Something went wrong");
+        }
+
+
+    }
+</script>

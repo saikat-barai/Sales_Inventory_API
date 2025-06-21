@@ -19,9 +19,10 @@ Route::get('/user/register', [UserController::class, 'userRegisterPage'])->name(
 Route::get('/sendOtp', [UserController::class, 'sendOtpPage'])->name('send_otp_page');
 Route::get('/verifyOtp', [UserController::class, 'verifyOtpPage'])->name('verify_otp_page');
 Route::get('/resetPassword', [UserController::class, 'resetPasswordPage'])->name('reset_password_page');
-Route::get('/categoryPage', [CategoryController::class, 'categoryPage'])->name('category_page');
-Route::get('/customerPage', [CustomerController::class, 'customerPage'])->name('customer_page');
-Route::get('/productPage', [ProductController::class, 'productPage'])->name('product_page');
+Route::get('/categoryPage', [CategoryController::class, 'categoryPage'])->name('category_page')->middleware(TokenVerificationMiddleware::class);
+Route::get('/customerPage', [CustomerController::class, 'customerPage'])->name('customer_page')->middleware(TokenVerificationMiddleware::class);
+Route::get('/productPage', [ProductController::class, 'productPage'])->name('product_page')->middleware(TokenVerificationMiddleware::class);
+Route::get('/userProfile', [UserController::class, 'userProfilePage'])->name('user_profile_page')->middleware(TokenVerificationMiddleware::class);
 
 // frontend route end *******
 

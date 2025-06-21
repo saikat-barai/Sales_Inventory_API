@@ -14,6 +14,9 @@ use PhpParser\Node\Stmt\TryCatch;
 class UserController extends Controller
 {
 
+    public function userProfilePage(){
+        return view('pages.dashboard.profile-page');
+    }
     public function userRegisterPage()
     {
         return view('pages.auth.registration-page');
@@ -212,8 +215,6 @@ class UserController extends Controller
     public function userProfile(Request $request)
     {
         $email = $request->header('user_email');
-        return $email;
-        dd();
         $user = User::where('email', $email)->first();
         if ($user !== null) {
             return response()->json([
@@ -231,20 +232,13 @@ class UserController extends Controller
 
     public function userProfileUpdate(Request $request)
     {
-        // $email = $request->header('user_email');
-        // return $email;
-        // dd();
         try {
             $email = $request->header('user_email');
-            // $user = User::where('email', $email)->first();
-            // return $user;
-            // dd();
             $validation = Validator::make($request->all(), [
                 "first_name" => "required|string|max:255",
                 "last_name" => "required|string|max:255",
-                "email" => "required|email|max:255",
-                // "email" => [ "nullable", "email", "max:255", Rule::unique('users')->ignore($user->id),],
                 "mobile" => 'nullable|numeric|digits:11',
+                "password" => "required|string|min:6",
 
             ]);
             if ($validation->fails()) {
@@ -254,13 +248,13 @@ class UserController extends Controller
                     'errors' => $validation->errors(),
                 ], 422);
             }
-            // $validated = $validation->validated();
+            $validated = $validation->validated();
             $user = User::where('email', $email)->update([
                 'first_name' => $validation->validated()['first_name'],
                 'last_name' => $validation->validated()['last_name'],
-                'email' => $validation->validated()['email'],
+                'email' => $email,
                 'mobile' => $validation->validated()['mobile'],
-                'password' => $request->password,
+                'password' => $validation->validated()['password'],
                 'updated_at' => now(),
             ]);
             return response()->json([
